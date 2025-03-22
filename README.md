@@ -1,74 +1,114 @@
+# Writeup for Kioptrix: Level 1 from Kioptrix VM Image Challenges
 
+**Author:** Omkar Sahni  
+**Difficulty:** Beginner  
+**Objective:** Gain root access to the machine
 
-# Kioptrix Level 1 - CTF Write-up 🚀  
+---
 
-## 📌 Introduction  
-**Kioptrix Level 1** is an entry-level **Capture The Flag (CTF)** challenge designed for beginners in penetration testing.  
-The objective is to **gain root access** by identifying and exploiting system vulnerabilities using various tools and techniques.  
-This challenge provides a **hands-on learning experience** in a controlled environment, focusing on **ethical hacking and security assessment skills**.  
+## Introduction
 
----  
+The **Kioptrix: Level 1** VM is an entry-level **Capture The Flag (CTF)** challenge designed for beginners in penetration testing. The goal is to gain **root access** by exploiting system vulnerabilities using various tools and techniques. This challenge provides a hands-on learning experience in a controlled environment, focusing on ethical hacking skills.
 
-## 🔍 Reconnaissance  
+---
 
-### **🛠 Tools Used:**  
-- `netdiscover` – Identify the target IP.  
-- `nmap` – Scan for open ports and services.  
-- `nikto` – Web vulnerability scanning.  
-- `ffuf` – Directory brute-forcing.  
+## Getting Started
 
-### **🔎 Findings:**  
-- **Target IP Address:** `192.168.X.X`  
-- **Open Ports:**  
-  - `22` (SSH)  
-  - `80` (HTTP - Apache 2.3.20)  
-  - `443` (HTTPS)  
-- Apache 2.3.20 running on **Red Hat with mod_ssl 2.8.4**  
+After extracting the Kioptrix VM files, update the `kioptrix_level_1.vmx` file to switch the network adapter from **Bridged** to **NAT** mode. This ensures that the VM can communicate with your host machine properly.
 
----  
+![Original vmx file](media/image2.png)
 
-## 💥 Exploitation  
+*Fig: Original vmx file*
 
-- The **ExploitDB** script was outdated and did not work.  
-- Used an **updated exploit from GitHub:**  
-  🔗 [OpenLuck - GitHub](https://github.com/heltonWernik/OpenLuck)  
+![Modified vmx file](media/image4.png)
 
-### **🔧 Steps Taken:**  
-1️⃣ Install required dependencies:  
-   ```bash
-   sudo apt-get install libssl-dev
-   ```  
-2️⃣ Compile the exploit:  
-   ```bash
-   gcc -o exploit exploit.c -lssl -lcrypto
-   ```  
-3️⃣ Execute the exploit:  
-   ```bash
-   ./openFuck
-   ```  
-4️⃣ **Gained Root Access! 🎉**  
+*Fig: Modified vmx file*
 
----  
+---
 
-## 🔝 Privilege Escalation  
+## Reconnaissance
 
-Since the exploit **granted immediate root access**, no further privilege escalation was required.  
+### Tools Used:
+- **netdiscover**: To identify the IP address of the target machine.
+- **nmap**: For port scanning and service enumeration.
+- **nikto**: A web vulnerability scanner to identify potential security issues.
+- **ffuf**: A directory brute-forcing tool to search for hidden directories or files.
 
----  
+### Finding the IP Address
 
-## 🎯 Conclusion  
+Using **netdiscover**, we identified the IP address of the Kioptrix VM.
 
-The **Kioptrix Level 1** challenge provided valuable insights into **real-world vulnerabilities** and security misconfigurations. Key takeaways include:  
-✅ The importance of **enumeration** before exploitation.  
-✅ How outdated software (Apache 2.3.20) can be a major security risk.  
-✅ The need for **up-to-date exploits** for successful penetration testing.  
+![netdiscover](media/image5.png)
 
----  
+*Fig: netdiscover*
 
-## 📂 Additional Resources  
+![netdiscover Result](media/image6.png)
 
-🔗 [Kioptrix VM Series](https://www.vulnhub.com/series/kioptrix,7/)  
-🔗 [ExploitDB](https://www.exploit-db.com/)  
+*Fig: netdiscover Result*
 
-🚀 **Follow me for more write-ups and CTF challenges!**  
+### Scanning & Enumeration
 
+We used **nmap** to scan the target machine and identify open ports and running services.
+
+![nmap command](media/image7.png)
+
+*Fig: nmap command*
+
+![Services running](media/image8.png)
+
+*Fig: Services running*
+
+From the scan, we discovered that **port 80 (HTTP)** and **port 443 (HTTPS)** were open, running a default Apache web server.
+
+![Apache Page](media/image9.png)
+
+*Fig: Apache Page*
+
+### Directory Brute-Forcing with FFUF
+
+We used **ffuf** to search for hidden directories or files on the web server.
+
+![Ffuf command](media/image10.png)
+
+*Fig: Ffuf command*
+
+Unfortunately, no interesting directories or files were found during the scan.
+
+### Web Vulnerability Scanning with Nikto
+
+Next, we ran **Nikto** to identify potential security issues on the web server.
+
+![Nikto](media/image11.png)
+
+*Fig: Nikto*
+
+Nikto revealed that the server was running **Apache 2.3.20** on **Red Hat** with **mod_ssl 2.8.4**. This version of Apache is known to be vulnerable to certain exploits.
+
+---
+
+## Exploitation
+
+### Identifying the Vulnerability
+
+After some research, we found that the **Apache 2.3.20** version is vulnerable to a **buffer overflow** exploit. However, the exploit available on **ExploitDB** was outdated and did not work.
+
+![Google search result](media/image12.png)
+
+*Fig: Google search result*
+
+### Using an Updated Exploit
+
+We decided to use an updated exploit from **GitHub** called **OpenLuck**.
+
+**Exploit Link:** [OpenLuck](https://github.com/heltonWernik/OpenLuck)
+
+![Clone exploit to local](media/image13.png)
+
+*Fig: Clone exploit to local*
+
+### Installing Dependencies
+
+To ensure the exploit works correctly, we installed the **libssl-dev** package, which provides the necessary OpenSSL development libraries.
+
+```bash
+sudo apt-get install libssl-dev
